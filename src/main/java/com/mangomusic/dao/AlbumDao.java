@@ -1,12 +1,15 @@
 package com.mangomusic.dao;
 
 import com.mangomusic.model.Album;
+import com.mangomusic.model.AlbumPlay;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class AlbumDao {
@@ -116,6 +119,40 @@ public class AlbumDao {
         }
 
         return albums;
+    }
+
+    public Map<String, Object> getPlayCount(int albumId) {
+        Map<String, Object> plays = new HashMap<>();
+        String query = "SELECT" +
+                "    a.album_id," +
+                "    a.title AS album_title," +
+                "    ar.name AS artist_name," +
+                "    COUNT(ap.play_id) AS play_count " +
+                "FROM albums AS a " +
+                "LEFT JOIN album_plays AS ap ON a.album_id = ap.album_id " +
+                "JOIN artists AS ar ON a.artist_id = ar.artist_id " +
+                "WHERE a.album_id = ? " +
+                "GROUP BY a.album_id, a.title, ar.name;" ;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, albumId);
+
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    plays.put("albumId",results.getInt(1));
+                    plays.put("albumTitle",results.getString(2));
+                    plays.put("artistName",results.getString(3));
+                    plays.put("playCount",results.getInt(4));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getting album play count", e);
+        }
+
+        return plays;
     }
 
     public List<Album> searchAlbums(String searchTerm) {

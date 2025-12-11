@@ -7,6 +7,7 @@ import com.mangomusic.model.Artist;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AlbumService {
@@ -26,6 +27,8 @@ public class AlbumService {
     public Album getAlbumById(int albumId) {
         return albumDao.getAlbumById(albumId);
     }
+
+    public Map<String, Object> getAlbumPlayCount(int albumId){return albumDao.getPlayCount(albumId);}
 
     public List<Album> getAlbumsByArtist(int artistId) {
         return albumDao.getAlbumsByArtist(artistId);

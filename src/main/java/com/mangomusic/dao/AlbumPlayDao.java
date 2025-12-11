@@ -78,6 +78,7 @@ public class AlbumPlayDao {
         return plays;
     }
 
+
     public AlbumPlay getPlayById(long playId) {
         String query = "SELECT ap.play_id, ap.user_id, ap.album_id, ap.played_at, ap.completed, " +
                 "       al.title as album_title, ar.name as artist_name " +
