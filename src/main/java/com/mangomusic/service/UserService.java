@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -19,6 +20,8 @@ public class UserService {
     public List<User> getAllUsers() {
         return userDao.getAllUsers();
     }
+
+    public Map<String, Object> getFavoriteGenre(int userId){return userDao.getFavoriteGenre(userId);}
 
     public User getUserById(int userId) {
         return userDao.getUserById(userId);

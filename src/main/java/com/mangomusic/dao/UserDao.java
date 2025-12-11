@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserDao {
@@ -195,6 +197,44 @@ public class UserDao {
             throw new RuntimeException("Error updating user", e);
         }
     }
+
+    public Map<String, Object> getFavoriteGenre(int userId) {
+        Map<String, Object> plays = new HashMap<>();
+        String query = "SELECT" +
+                "    u.user_id," +
+                "    u.username, " +
+                "    primary_genre," +
+                "    COUNT(ap.play_id) AS play_count " +
+                "FROM albums AS a " +
+                "LEFT JOIN album_plays AS ap ON a.album_id = ap.album_id " +
+                "JOIN artists AS ar ON a.artist_id = ar.artist_id " +
+                "JOIN users AS u ON ap.user_id = u.user_id " +
+                "WHERE u.user_id = ? " +
+                "GROUP BY u.user_id, u.username, primary_genre " +
+                "ORDER BY play_count " +
+                "LIMIT 1; " ;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, userId);
+
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    plays.put("userId",results.getInt(1));
+                    plays.put("username",results.getString(2));
+                    plays.put("favoriteGenre",results.getString(3));
+                    plays.put("playsInGenre",results.getInt(4));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getting top artist album play count", e);
+        }
+
+        return plays;
+    }
+
 
     public boolean deleteUser(int userId) {
         String query = "DELETE FROM users WHERE user_id = ?";

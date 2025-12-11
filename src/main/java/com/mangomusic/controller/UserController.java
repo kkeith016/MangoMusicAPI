@@ -6,7 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -39,6 +45,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         User user = userService.getUserById(id);
@@ -47,6 +54,15 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
+    @GetMapping("/{id}/favorite-genre")
+    public ResponseEntity<?> getFavoriteGenre(@PathVariable int id){
+        User user = userService.getUserById(id);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(userService.getFavoriteGenre(id));
+    }
+
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
